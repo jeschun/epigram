@@ -62,7 +62,7 @@ export default function LandingPage() {
               />
             </Link>
             <Link
-              href="/feed"
+              href="/epigramlist"
               className="text-sm text-gray-500 hover:text-gray-800"
             >
               피드
