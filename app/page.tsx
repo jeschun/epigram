@@ -46,36 +46,6 @@ function Block({
 export default function LandingPage() {
   return (
     <main className="min-h-dvh bg-[#fbfcfe]">
-      {/* ───── 헤더: 로고 + 피드(왼쪽), 로그인(오른쪽) ───── */}
-      <header className="w-full bg-white">
-        <div className="mx-auto flex h-14 max-w-[1200px] items-center justify-between px-4">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="inline-flex items-center">
-              {/* 로고 자체에 'epigram' 텍스트 포함되어 있으므로 별도 텍스트 제거 */}
-              <Image
-                src="/logo.svg"
-                alt="epigram logo"
-                width={112}
-                height={28}
-                className="h-7 w-auto md:h-8"
-                priority
-              />
-            </Link>
-            <Link
-              href="/epigramlist"
-              className="text-sm text-gray-500 hover:text-gray-800"
-            >
-              피드
-            </Link>
-          </div>
-          <nav className="text-sm">
-            <Link href="/login" className="text-gray-500 hover:text-gray-800">
-              로그인
-            </Link>
-          </nav>
-        </div>
-      </header>
-
       {/* ───── 히어로: 줄무늬 배경 유지 ───── */}
       <section
         className="w-full py-24"
