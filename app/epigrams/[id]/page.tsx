@@ -34,16 +34,14 @@ export default function EpigramDetailPage() {
 
   const [text, setText] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
-
   const [err, setErr] = useState<string | null>(null);
 
-  // profile modal
+  // 프로필 모달
   const [profile, setProfile] = useState<{
     nickname: string;
     image: string | null;
   } | null>(null);
 
-  // 안전 가드
   useEffect(() => {
     if (!idRaw || Number.isNaN(eid)) router.replace("/epigramlist");
   }, [idRaw, eid, router]);
@@ -71,7 +69,6 @@ export default function EpigramDetailPage() {
         10,
         cursor ?? undefined
       );
-      // 최신순(서버가 최신순이면 그대로, 아니라면 정렬)
       const merged = [...comments, ...data.list].sort(
         (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)
       );
@@ -136,7 +133,7 @@ export default function EpigramDetailPage() {
     }
   };
 
-  // 댓글 수정/삭제 (엔드포인트는 일반 REST 가정)
+  // 댓글 수정/삭제 (일반 REST 가정)
   const updateComment = async (
     c: CommentItem,
     nextText: string
@@ -164,7 +161,7 @@ export default function EpigramDetailPage() {
     }
   };
 
-  // 글 수정/삭제 (엔드포인트는 일반 REST 가정)
+  // 글 삭제 (일반 REST 가정)
   const deleteEpigram = async (): Promise<void> => {
     if (!post) return;
     if (!confirm("이 에피그램을 삭제할까요?")) return;
@@ -177,7 +174,7 @@ export default function EpigramDetailPage() {
     }
   };
 
-  // 무한 스크롤 보조: sentinel 관찰
+  // 무한 스크롤 sentinel
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     if (!sentinelRef.current) return;
@@ -191,11 +188,17 @@ export default function EpigramDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cursor, busy, sentinelRef.current]);
 
-  if (!post) return <main className="p-10">불러오는 중…</main>;
+  if (!post) {
+    return (
+      <main className="mx-auto max-w-[900px] px-4 py-16 text-gray-500">
+        불러오는 중…
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto max-w-[900px] px-4 py-10">
-      {/* 헤더 영역 */}
+      {/* 상단: 태그 + 공유/메뉴 */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex flex-wrap gap-2 text-xs">
           {post.tags.map((t) => (
@@ -207,7 +210,8 @@ export default function EpigramDetailPage() {
                   `/epigramlist?keyword=${encodeURIComponent(t.name)}`
                 )
               }
-              className="rounded bg-gray-100 px-2 py-0.5 text-gray-500 hover:bg-gray-200"
+              className="rounded-full border border-gray-200 bg-white px-2.5 py-1 text-gray-600 hover:bg-gray-50"
+              title={`#${t.name}`}
             >
               #{t.name}
             </button>
@@ -217,8 +221,8 @@ export default function EpigramDetailPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => void share()}
-            className="rounded-md border border-gray-200 px-2 py-1 text-xs hover:bg-gray-50"
-            title="공유"
+            className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 shadow-sm hover:bg-gray-50"
+            title="URL 복사"
           >
             공유
           </button>
@@ -226,10 +230,10 @@ export default function EpigramDetailPage() {
           {isMine && (
             <div className="relative">
               <details className="group">
-                <summary className="cursor-pointer rounded-md border border-gray-200 px-2 py-1 text-xs hover:bg-gray-50 list-none">
+                <summary className="list-none cursor-pointer rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 shadow-sm hover:bg-gray-50">
                   …
                 </summary>
-                <div className="absolute right-0 z-10 mt-1 w-28 rounded-md border border-gray-100 bg-white p-1 text-xs shadow">
+                <div className="absolute right-0 z-10 mt-1 w-28 rounded-lg border border-gray-100 bg-white p-1 text-xs shadow-lg">
                   <button
                     onClick={() => router.push(`/addepigram?edit=${post.id}`)}
                     className="block w-full rounded px-2 py-1 text-left hover:bg-gray-50"
@@ -249,28 +253,28 @@ export default function EpigramDetailPage() {
         </div>
       </div>
 
-      {/* 본문 */}
-      <article className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-        <p className="whitespace-pre-line text-gray-800 text-[17px]">
+      {/* 본문 카드 */}
+      <article className="rounded-2xl border border-gray-100 bg-white p-7 shadow-[0_8px_24px_rgba(9,30,66,0.04)]">
+        <p className="whitespace-pre-line text-[18px] leading-[1.9] text-gray-800">
           {post.content}
         </p>
 
-        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-gray-500">
+        {/* 메타: 좋아요/저자/출처 */}
+        <div className="mt-6 flex flex-wrap items-center gap-3 text-[15px] text-gray-500">
           <button
             onClick={() => void toggleLike()}
-            className="rounded-md border border-gray-200 px-3 py-1.5 text-sm hover:bg-gray-50"
+            className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm shadow-sm hover:bg-gray-50"
+            title="좋아요"
           >
-            {post.isLiked ? "❤️ 좋아요 취소" : "🤍 좋아요"} ({post.likeCount})
+            <span>{post.isLiked ? "❤️" : "🤍"}</span> 좋아요 {post.likeCount}
           </button>
 
-          {/* 저자 / 출처 */}
-          <span className="ml-2 text-gray-400">— {post.author}</span>
+          <span className="ml-1 text-gray-400">— {post.author}</span>
 
           {post.referenceTitle && (
             <span className="inline-flex items-center gap-1 text-gray-400">
               ·
               {post.referenceUrl ? (
-                // 단일 a (중첩 방지)
                 <a
                   href={post.referenceUrl}
                   target="_blank"
@@ -289,15 +293,16 @@ export default function EpigramDetailPage() {
       </article>
 
       {/* 댓글 */}
-      <section className="mt-10">
-        <h2 className="mb-3 text-sm font-semibold text-gray-700">댓글</h2>
+      <section className="mt-12">
+        <h2 className="mb-3 text-[15px] font-semibold text-gray-700">댓글</h2>
 
         <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center">
           <input
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="댓글을 입력하세요"
-            className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-sm focus:border-gray-400"
+            placeholder="100자 이내로 입력하세요."
+            maxLength={300}
+            className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm placeholder:text-gray-400 focus:border-gray-400"
           />
           <label className="flex items-center gap-2 text-sm text-gray-600">
             <input
@@ -309,11 +314,13 @@ export default function EpigramDetailPage() {
           </label>
           <button
             onClick={() => void submitComment()}
-            className="rounded-md bg-gray-900 px-3 py-2 text-sm text-white"
+            className="rounded-md bg-gray-900 px-4 py-2 text-sm text-white hover:opacity-95"
           >
             저장
           </button>
         </div>
+
+        {err && <p className="mb-2 text-sm text-red-500">{err}</p>}
 
         <ul className="space-y-3">
           {comments.map((c) => {
@@ -321,7 +328,7 @@ export default function EpigramDetailPage() {
             return (
               <li
                 key={c.id}
-                className="rounded-md border border-gray-100 bg-white p-3"
+                className="rounded-xl border border-gray-100 bg-white p-3 shadow-sm"
               >
                 <div className="flex items-center justify-between">
                   <button
@@ -344,7 +351,7 @@ export default function EpigramDetailPage() {
                         />
                       ) : null}
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-600">
                       {c.writer.nickname}
                     </span>
                     <span className="text-[11px] text-gray-400">
@@ -384,7 +391,9 @@ export default function EpigramDetailPage() {
                   )}
                 </div>
 
-                <p className="mt-2 text-sm text-gray-800">{c.content}</p>
+                <p className="mt-2 text-sm leading-6 text-gray-800">
+                  {c.content}
+                </p>
               </li>
             );
           })}
@@ -415,7 +424,7 @@ export default function EpigramDetailPage() {
           onClick={() => setProfile(null)}
         >
           <div
-            className="w-full max-w-xs rounded-xl bg-white p-5 shadow"
+            className="w-full max-w-xs rounded-2xl bg-white p-5 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mx-auto mb-3 h-16 w-16 overflow-hidden rounded-full bg-gray-100">
@@ -434,7 +443,7 @@ export default function EpigramDetailPage() {
             <div className="mt-4 text-center">
               <button
                 onClick={() => setProfile(null)}
-                className="rounded-md bg-gray-900 px-3 py-1.5 text-sm text-white"
+                className="rounded-md bg-gray-900 px-3 py-1.5 text-sm text-white hover:opacity-95"
               >
                 닫기
               </button>
