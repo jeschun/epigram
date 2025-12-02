@@ -124,3 +124,9 @@ export interface UploadImageResponse {
 export type MeResponse = User;
 /** 좋아요/좋아요 취소 응답은 상세 에피그램 객체를 반환 */
 export type LikeResponse = EpigramDetail;
+
+/** 에피그램 단건(목록용) 별칭 */
+export type Epigram = EpigramBase;
+
+/** 에피그램 목록 응답 별칭 */
+export type EpigramListPage = Page<EpigramBase>;

@@ -1,4 +1,5 @@
 import { api } from "./api";
+import type { EpigramListPage } from "@/src/types/api";
 import type {
   EpigramBase,
   EpigramDetail,
@@ -119,4 +120,18 @@ export async function updateComment(
 
 export async function deleteComment(id: number): Promise<void> {
   await api.delete(`/comments/${id}`);
+}
+
+
+
+export async function searchEpigrams(params: {
+  keyword: string;
+  limit?: number;
+  cursor?: number | null;
+}): Promise<EpigramListPage> {
+  const { keyword, limit = 12, cursor } = params;
+  const { data } = await api.get("/epigrams", {
+    params: { keyword, limit, cursor: cursor ?? undefined },
+  });
+  return data;
 }
